@@ -16,14 +16,10 @@ function Header(props){
 
 }
 function Nav(props){
-  const lis = [
-    <li><a href="/read/1">html</a></li>,
-    <li><a href="/read/2">css</a></li>,
-    <li><a href="/read/3">js</a></li>
-  ]
+  const lis = []
   for(let i=0; i< props.topics.length; i++){
     let t = props.topics[i]
-    lis.push(<li key={t.id}><a id={t.id} href={'/read/'+t.title} onClick={event=>{
+    lis.push(<li key={t.id}><a id={t.id} href={'/read/'+t.id} onClick={(event)=>{
       // key는 React의 식별을 위한 역할로
       // id는 Html 코드에 들어갈 id로
       event.preventDefault();
@@ -31,7 +27,14 @@ function Nav(props){
       // event 객체가 갖고 있는 target
       // target은 event를 유발시킨 태그를 가르킨다.(<a>)
       // a가 갖고 있는 props 중 id
-    }}></a></li>)
+    }}>{t.title}</a></li>)
+    // t는 props.topics[i]를 가르킨다.
+    // props는 Nav컴포넌트의 prop를 받아오는데
+    // 이 prop들 중 topics는 App안에 있는 Nav의 topics를
+    // 가르키고, topics는 App에 선언된 객체를 가진 배열인
+    // topics를 받아온다.
+    // 따라서, for문이 돌아가며 변수 topics의 0,1,2번 째 인덱스를
+    // 가르키고, 가르킨 인덱스의 객체 중 title 키를 출력한다.
   }
   return (
     <nav>
@@ -65,7 +68,7 @@ function App(){
       <Nav topics={topics} onChangeMode={(id)=>{
         // onChangeMode 함수는 a태그에서 onClick이벤트가 발생했을 때
         // 호출되고 매개변수인 id는, event.target에 의해 a태그를 가르켜
-        // a 태그의 id이다.
+        // a 태그의 id이다
         alert(id)
       }}></Nav>
       <Article title="Welcome" body="Hello, Web"></Article>
