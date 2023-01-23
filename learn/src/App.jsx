@@ -1,7 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
 import { useState } from 'react';
-// useState라는 hook은 React에서 기본적으로 제공하는 함수이다.
 
 function Header(props){
   return <header>
@@ -18,13 +17,8 @@ function Nav(props){
   for(let i=0; i< props.topics.length; i++){
     let t = props.topics[i]
     lis.push(<li key={t.id}><a id={t.id} href={'/read/'+t.id} onClick={(event)=>{
-      // 아래에 Number를 사용하는 이유, 우리가 부여한 id는 숫자이지만
-      // id의 속성값으로 들어가는 id는 문자가 된다.
-      // 따라서 기본적으로 설정한 id의 숫자와 내가 클릭한 태그의 속성값
-      // id가 맞는가 비교하기 위해 클릭한 태그의 속성값을 다시 숫자로 바꿔줘야 한다. 
       event.preventDefault();
       props.onChangeMode(Number(event.target.id));
-      // 내가 선택한 
     }}>{t.title}</a></li>)
   }
   return (
@@ -44,48 +38,84 @@ function Article(props){
   )
 }
 
-function App(){
-  //const mode = 'WELCOME';
-    //const _mode = useState('WELCOME');
-  // 지역번수인 mode를 상태로 업그레이드 한다.
-  // _mode는 ['WELCOME',f]를 갖고 있는 배열이다.
-  // _mode[0] = 'WELCOME' 상태의 값, _mode[1] = function() 값을 바꾸는 함수이다.
-  // useState의 인자는 state의 초기값이다. 초기값 WELCOME
-    //const mode = _mode[0];
-  // mode에는 상태의 값이 담긴다.
-    //const setMode = _mode[1];
-  // setMode에는 값을 바꾸고 싶을 때 사용하는 함수가 담겨있다.
-  // 위의 코드를 간략화 시키면 아래의 코드이다.
-  const [mode, setMode] = useState('WELCOME')
-  // 변수명은 아무거나 입력해도 상관없다.
-  const [id, setId] = useState(null)
-  // 추가적으로 Article에 나타나는 문구로 무엇을 클릭했는지 알고싶다.
+function Create(props){
+  return <article>
+    <h2>Create</h2>
+    <form onSubmit={event=>{
+      event.preventDefault();
+      // submit은 클릭을 했을 때 페이지가 리로드 된다.
+      // 이것을 막는다.
+      const title = event.target.title.value
+      // submit 버튼을 눌렀을 때 발생하는 event는 form 태그를 가르키기 때문에
+      // name이 title인 태그의 value를 가져온다.
+      const body = event.target.body.value;
+      // title,body 질문
+      props.onCreate(title,body);
+    }}>
+      {/* 정보를 전송하기 위한 form */}
+      <p><input type="text" name='title' placeholder='title'/></p>
+      <p><textarea name="body" placeholder='body'></textarea></p>
+      <p><input type="submit" value="create"/></p>
+    </form>
+  </article>
+}
 
-  const topics = [
+function App(){
+  const [mode, setMode] = useState('WELCOME')
+  const [id, setId] = useState(null)
+  const [topics, setTopics] = useState([
+    // Creat를 통해 input을 하고, input한 value 값인 title과 body를
+    // topics안에다가 넣어야 하기 때문에 topics도 상태로 만들어
+    // 새로운 값을 가질 수 있도록 한다.
     {id:1, title:'html', body:'html is ...'},
     {id:2, title:'css', body:'css is ...'},
     {id:3, title:'java', body:'java is ...'}
-  ]
+  ]);
+  const [nextId, setNextId] = useState(4);
+  // Create를 통해 객체의 title과 body는 추가되지만 id는 추가되지 않는다.
+  // 새롭게 추가되는 topics 객체에 id를 추가하는 방법은 여러가지가 있겠지만
+  // id만 따라 빼고 값이 변하는 상태를 만들기 위함, 이미 앞에 1,2,3의 id가
+  // 있기 때문에 초기값은 4부터 시작하면 된다.
 
   let content = null;
-  // 아무것도 정의하지 않음 null
   if(mode === 'WELCOME'){
     content = <Article title="Welcome" body="Hello,WEB"></Article>
   }else if(mode === 'READ'){
     let title, body = null;
-    // Article에 들어갈 값은 초기화
     for(let i=0; i<topics.length; i++){
       if(topics[i].id === id){
-        // 비교하는 id는 내가 클릭하여 변경된 상태 useState인
-        // id를 말한다.
         title = topics[i].title;
         body = topics[i].body;
       }
-      // if를 안 쓰면 li의 아이디가 모두 담기기 때문에
-      // 내가 클릭한 li의 id와 맞는지 비교를 해줘야한다.
     }
     content = <Article title={title} body={body}></Article>
+  }else if(mode === 'CREAT'){
+    content = <Create onCreate={(_title,_body)=>{
+      const newTopic = {id:nextId, title:_title, body:_body}
+      const newTopics = [...topics]
+      // 상태가 string,boolean,number ... 등의 원시자료라면 그래도 사용하면 되지만
+      // 상태가 object,array 같이 참조자료라면 이것을 복제한 후 상태를 변경해야 한다.
+      // 우리가 topics안에 추가하려 하는데 이때, topics는 객체이기 떄문에
+      // newTopics를 만들어 복제를 해주어야한다.
+      newTopics.push(newTopic);
+      setTopics(newTopics)
+      setMode('READ');
+      setId(nextId);
+      setNextId(nextId++);
+      // 추가된 id를 계속 추가시키고, 추가된 내용을 볼 수 있으며
+      // creat input 창이 닫아지도록 READ로 바꿔준다.
+    }}></Create>
   }
+  // 예) const [value, setValue] = useState([1]);
+  // 배열을 가진 value에서
+  // value.push(2) - value의 오리지널 값을 바꾼것이다.
+  // setValue(value) - 상태는 값의 변화가 없으면 굳이 컴포넌트를
+  // 다시 렌더링 하지 않는데, 우리는 오리지널 값을 그대로 추가한 것이기 때문에
+  // 상태 변화에 따른 재실행이 일어나지 않는다.
+  // 따라서, newValue = [...value] - 오리지널 데이터를 복제하고
+  // newValue.push(2) - 추가하고
+  // setValue(newValue) 로 상태변화
+
 
   return(
     <div>
@@ -93,27 +123,15 @@ function App(){
         setMode('WELCOME');
       }}></Header>
       <Nav topics={topics} onChangeMode={(_id)=>{
-          //mode = 'READ';
-        // li를 클릭했을 때 mode를 READ로 바꿔 Article에 READ를 출력하고 싶지만
-        // 값은 바뀌지 않는다. li를 눌러도 App이 다시 실행되는 것이 아니기에
-        // return 값에는 변화가 없다.
-        // 우리가 하고 싶은 것: mode의 값이 바뀌면 App이 새로 실행되면서
-        // return 값이 바뀌고, return 값이 ui에 반영되는 것
-
-        // state를 사용한다.
         setMode('READ');
-        // 그냥 mode = 'READ'를 사용하면 li를 Nav를 클릭했을 때
-        // mode는 READ를 갖게 되지만 아무런 변화를 나타내지 않기 때문에
-        // 값을 바꾸고 싶을 때의 함수인 setMode에 부여되고
-        // App 컴포넌트가 다시 실행되며 바뀐 값을,바뀐 return을 출력한다.
         setId(_id)
-        // Nav안에 클릭한 태그의 정보가 담긴 _id
       }}></Nav>
-      {/* <Article title="Welcome" body="Hello, Web"></Article> 
-        mode에 따라 Article의 값을 바꿔주고 싶기 때문에 Article을
-        삭제하고 content에 Article을 부여한다.
-      */}
       {content}
+      <a href="/create" onClick={event=>{
+        event.preventDefault();
+        setMode('CREATE')
+        {/* setMode의 상태가 Create가 되었을 때*/}
+      }}></a>
     </div>
   )
 }
