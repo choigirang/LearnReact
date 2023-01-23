@@ -1,23 +1,38 @@
 import logo from './logo.svg';
 import './App.css';
-
-function App(){
-  return(
-    <div>
-      <header>
-        <h1><a href="/">WEB</a></h1>
-      </header>
-      <nav>
+function Header(){
+  return <header>
+    <h1><a href="/">WEB</a></h1>
+  </header>
+}
+// 각각의 컴포넌트 만들기
+function Nav(){
+  return (
+    <nav>
         <ol>
           <li><a href="/read/1">html</a></li>
           <li><a href="/read/2">css</a></li>
           <li><a href="/read/3">js</a></li>
         </ol>
       </nav>
-      <article>
+  )
+}
+
+function Article(){
+  return(
+    <article>
         <h2>Welcome</h2>
         Hello,Web
       </article>
+  )
+}
+
+function App(){
+  return(
+    <div>
+      <Header></Header>
+      <Nav></Nav>
+      <Article></Article>
     </div>
   )
 }
