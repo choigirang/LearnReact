@@ -114,7 +114,7 @@ function App(){
   // 상태 변화에 따른 재실행이 일어나지 않는다.
   // 따라서, newValue = [...value] - 오리지널 데이터를 복제하고
   // newValue.push(2) - 추가하고
-  // setValue(newValue) 로 상태변화
+  // setValue(newValue) 로 상태변화.
 
 
   return(
