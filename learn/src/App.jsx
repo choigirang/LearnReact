@@ -1,4 +1,3 @@
-// commit test
 import logo from "./logo.svg";
 import "./App.css";
 import { useState } from "react";
@@ -105,11 +104,6 @@ function Update(props) {
             }}
           />
         </p>
-        {/* 그냥 value 값을 props.title로 줬을 때는 값이 변하지 않는다.
-      이 props는 우리가 지정해주어 변하지 않기 때문에 props 또한
-      변할 수 있는 상태로 만들어줘야 한다. useState */}
-        {/* onChange는 html에서 마우스가 바깥으로 나갈 때...작동하지만
-      React에서는 값을 입력할 때마다 발생한다. */}
         <p>
           <textarea
             name="body"
@@ -153,19 +147,42 @@ function App() {
     }
     content = <Article title={title} body={body}></Article>;
     contextControl = (
-      <li>
-        <a
-          href={"/update/" + id}
-          onClick={(event) => {
-            event.preventDefault();
-            setMode("UPDATE");
-          }}
-        >
-          Update
-        </a>
-      </li>
+      <>
+        <li>
+          <a
+            href={"/update/" + id}
+            onClick={(event) => {
+              event.preventDefault();
+              setMode("UPDATE");
+            }}
+          >
+            Update
+          </a>
+        </li>
+        <li>
+          <input
+            type="button"
+            value="Delete"
+            onClick={() => {
+              // Delete를 눌렀을 때 topics를 삭제한다.
+              const newTopics = [];
+              // 오리지널 topics가 아닌 빈 배열을 가진 새로운 topics
+              for (let i = 0; i < topics.length; i++) {
+                if (topics[i].id !== id) {
+                  newTopics.push(topics[i]);
+                }
+              }
+              setTopics(newTopics);
+              setMode("WELCOME");
+              // 새로운 배열인 newTopics의 상태를 변화시켜준다.
+              // WELCOME 화면으로 띄어준다.
+            }}
+          />
+        </li>
+      </>
     );
-    // mode가 READ일 때만 contextControl이 나타나게 한다.
+    // 빈 태그로 닫아줄 시 html 상에서는 어떠한 태그로도 존재하지 않고
+    // 그룹을 지어주는 용도로만 사용된다.
   } else if (mode === "CREAT") {
     content = (
       <Create
@@ -194,18 +211,12 @@ function App() {
         title={title}
         body={body}
         onUpdate={(title, body) => {
-          // READ일 때, title과 body값을 알아냈던 것과 같다.
           const newTopics = [...topics];
           const updatedTopic = { id: id, title: title, body: body };
-          // READ일 때, Update를 통해 입력한 title과 body 값이
-          // 새로운 topic을 구성하며 id는 READ일 때를 그대로 받아온다.
           for (let i = 0; i < newTopics.length; i++) {
             if (newTopics[i].id === id) {
               newTopics[i] = updatedTopic;
-              // newTopics의 id와 updatedTopic의 id가 일치하는 것은
-              // 우리가 클릭한 id를 일컫는다.
               break;
-              // 일치하면 종료
             }
           }
           setTopics(newTopics);
